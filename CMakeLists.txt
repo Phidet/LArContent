@@ -36,6 +36,7 @@ if(DEFINED ENV{CETBUILDTOOLS_VERSION})
 
     find_ups_product( pandora )
     find_ups_product( eigen )
+    find_ups_product( torch )
 
     cet_find_library( PANDORASDK NAMES PandoraSDK PATHS ENV PANDORA_LIB )
     cet_find_library( PANDORAMONITORING NAMES PandoraMonitoring PATHS ENV PANDORA_LIB )
@@ -68,8 +69,8 @@ else()
     # project version
     # ATTN This package supports two build systems; please ensure version is specified here *and* in ups/product_deps
     set(${PROJECT_NAME}_VERSION_MAJOR 03)
-    set(${PROJECT_NAME}_VERSION_MINOR 17)
-    set(${PROJECT_NAME}_VERSION_PATCH 00)
+    set(${PROJECT_NAME}_VERSION_MINOR 16)
+    set(${PROJECT_NAME}_VERSION_PATCH 02)
     set(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
     #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -79,13 +80,13 @@ else()
     # Prefer local include directory to any paths to installed header files
     include_directories(./)
 
-    find_package(PandoraSDK 03.04.00 REQUIRED)
+    find_package(PandoraSDK 03.03.00 REQUIRED)
     include_directories(${PandoraSDK_INCLUDE_DIRS})
     link_libraries(${PandoraSDK_LIBRARIES})
     add_definitions(${PandoraSDK_DEFINITIONS})
 
     if(PANDORA_MONITORING)
-        find_package(PandoraMonitoring 03.05.00 REQUIRED)
+        find_package(PandoraMonitoring 03.04.00 REQUIRED)
         include_directories(${PandoraMonitoring_INCLUDE_DIRS})
         link_libraries(${PandoraMonitoring_LIBRARIES})
         add_definitions(${PandoraMonitoring_DEFINITIONS})
@@ -94,6 +95,8 @@ else()
 
     find_package(Eigen3 3.3 REQUIRED NO_MODULE)
     include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+    find_package(Torch REQUIRED)
+    include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
 
     #-------------------------------------------------------------------------------------------------------------------------------------------
     # Low level settings - compiler etc
