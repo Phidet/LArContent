@@ -1,4 +1,8 @@
 include_directories( $ENV{EIGEN_INC} )
+include_directories( $ENV{TORCH_INC} )
+message(STATUS "EIGEN_INC: $ENV{EIGEN_INC}")
+message(STATUS "TORCH_INC: $ENV{TORCH_INC}")
+
 
 set( subdir_list LArCheating
                  LArControlFlow
