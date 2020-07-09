@@ -9,6 +9,10 @@ ifndef EIGEN_INC
     EIGEN_INC = $(PANDORA_DIR)/Eigen3
 endif
 
+ifndef TORCH_INC
+    TORCH_INC = $(PANDORA_DIR)/Torch
+endif
+
 CC = g++
 CFLAGS = -c -g -fPIC -O2 -Wall -Wextra -Werror -pedantic -Wno-long-long -Wno-sign-compare -Wshadow -fno-strict-aliasing -std=c++17
 ifdef BUILD_32BIT_COMPATIBLE
@@ -29,6 +33,7 @@ PROJECT_LIBRARY = $(PROJECT_LIBRARY_DIR)/libLArContent.so
 INCLUDES  = -I$(PROJECT_INCLUDE_DIR)
 INCLUDES += -I$(PANDORA_DIR)/PandoraSDK/include
 INCLUDES += -isystem $(EIGEN_INC)/
+INCLUDES += -isystem $(TORCH_INC)/
 ifdef MONITORING
     INCLUDES += -I$(PANDORA_DIR)/PandoraMonitoring/include
 endif
