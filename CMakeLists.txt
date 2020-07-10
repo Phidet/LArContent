@@ -124,7 +124,6 @@ else()
     set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
     
     target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}")
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
     # - Optional documents
     option(LArContent_BUILD_DOCS "Build documentation for ${PROJECT_NAME}" OFF)
