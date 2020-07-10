@@ -36,7 +36,7 @@ if(DEFINED ENV{CETBUILDTOOLS_VERSION})
 
     find_ups_product( pandora )
     find_ups_product( eigen )
-    find_ups_product( torch )
+    #find_ups_product( torch )
 
     cet_find_library( PANDORASDK NAMES PandoraSDK PATHS ENV PANDORA_LIB )
     cet_find_library( PANDORAMONITORING NAMES PandoraMonitoring PATHS ENV PANDORA_LIB )
@@ -97,6 +97,11 @@ else()
     include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
     find_package(Torch REQUIRED)
     include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
+    target_link_libraries(PROJECT_NAME "${TORCH_LIBRARIES}")
+    set_property(TARGET PROJECT_NAME PROPERTY CXX_STANDARD 14)
+
+    message(STATUS "EIGEN3_INCLUDE_DIRS: ${EIGEN3_INCLUDE_DIRS}")
+    message(STATUS "TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS}")
 
     #-------------------------------------------------------------------------------------------------------------------------------------------
     # Low level settings - compiler etc
