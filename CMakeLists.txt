@@ -96,6 +96,7 @@ else()
     find_package(Eigen3 3.3 REQUIRED NO_MODULE)
     include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
     find_package(Torch REQUIRED)
+    include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
 
     message(STATUS "EIGEN3_INCLUDE_DIRS: ${EIGEN3_INCLUDE_DIRS}")
     message(STATUS "TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS}")
@@ -122,9 +123,8 @@ else()
     add_library(${PROJECT_NAME} SHARED ${LAR_CONTENT_SRCS})
     set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION} SOVERSION ${${PROJECT_NAME}_SOVERSION})
     
-    include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
-    target_link_libraries(PROJECT_NAME "${TORCH_LIBRARIES}")
-    set_property(TARGET PROJECT_NAME PROPERTY CXX_STANDARD 14)
+    target_link_libraries(${PROJECT_NAME} "${TORCH_LIBRARIES}")
+    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 
     # - Optional documents
     option(LArContent_BUILD_DOCS "Build documentation for ${PROJECT_NAME}" OFF)
