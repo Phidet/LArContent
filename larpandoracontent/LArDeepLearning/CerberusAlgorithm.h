@@ -38,11 +38,13 @@ namespace lar_content
 		pandora::StatusCode ReadSettings(const pandora::TiXmlHandle xmlHandle);
 		pandora::StatusCode WriteDetectorGaps(torch::Tensor &tensor, const float minZ_U, const float minZ_V, const float minZ_W);
 		pandora::StatusCode PopulateImage(torch::Tensor &tensor, const pandora::CaloHitVector &caloHitVector, const int index, const float minX, const float minZ);
-		void fillMinimizationArray(std::array<float, 128> &hitDensity, const pandora::PfoList *const pPfoList, const pandora::CaloHitList *const pCaloHitList, const pandora::CartesianVector v, const float startD1, const float startD2, const bool directionX, const pandora::HitType TPC_VIEW);
-		float findMin(const std::array<float, 128> hitDensity, const float startPoint) const;
+		pandora::StatusCode Backtracing(const torch::Tensor &tensor, const float minX, const float minZ);
+		void FillMinimizationArray(std::array<float, 128> &hitDensity, const pandora::PfoList *const pPfoList, const pandora::CaloHitList *const pCaloHitList, const pandora::CartesianVector v, const float startD1, const float startD2, const bool directionX, const pandora::HitType TPC_VIEW);
+		float FindMin(const std::array<float, 128> hitDensity, const float startPoint) const;
 		// Member variables here
 		pandora::StringVector m_pfoListNames;
-		pandora::StringVector m_clusterListNames; 
+		pandora::StringVector m_caloHitListNames;
+		//pandora::StringVector m_clusterListNames;
 	};
 //------------------------------------------------------------------------------------------------------------------------------------------
 	inline pandora::Algorithm *CerberusAlgorithm::Factory::CreateAlgorithm() const
