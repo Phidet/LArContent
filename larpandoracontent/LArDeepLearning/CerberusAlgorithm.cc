@@ -150,60 +150,111 @@ namespace lar_content{
 		//PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, this->GetManager<CaloHit>()->PrepareForClustering(*this, newClusterListName));
 
 
-	    for (const Cluster *const pCluster : *pNewClusterList)
-	    {
-			CaloHitList caloHitList;
-    		pCluster->GetOrderedCaloHitList().FillCaloHitList(caloHitList);
+
+        for (const ParticleFlowObject *const pPfo : *pPfoList) // Finds and adds showers to pfoListCrop
+		{	
+		    CaloHitList caloHitList;
+		    LArPfoHelper::GetCaloHits(pPfo, TPC_VIEW_U, caloHitList);
+
 	    	for (const CaloHit *const pCaloHit : caloHitList)
 			{
 				const CartesianVector vec = pCaloHit->GetPositionVector();
 				const int x = (int)((vec.GetX()-minX)/0.3f);
 				const int z = (int)((vec.GetZ()-minZ)/0.3f);
 				if(x>=IMSIZE || z>=IMSIZE || x<0 || z<0) continue; // Skipps hits that are not in the crop area
-
 				const int caloHitClass = tensor.index({0, x, z}).item<int>();
-				std::cout<<"CerberusAlgorithm: Point 1: "<<pCluster->GetParticleId()<<std::endl;
-				if(pCluster->GetParticleId()==E_MINUS) // Is it a shower?
+				if(LArPfoHelper::IsShower(pPfo) && caloHitClass==0)//LArPfoHelper::IsNeutrinoFinalState(pPfo))
 				{
-					if(caloHitClass==0)
+					const Cluster *pbestCluster = FindClosestTrackCluster(pCaloHit, pNewClusterList, 10.f)
+					if (pbestCluster) // Meaning: if it is not a null pointer
 					{
-						float shortestDistance = std::numeric_limits<float>::max();
-						const Cluster * pbestCluster(nullptr);
-						for (const Cluster *const pCluster2 : *pNewClusterList)
-	    				{
-	    					if(pCluster2->GetParticleId()==E_MINUS) continue; // Skip showers
-							const float distance = LArClusterHelper::GetClosestDistance(vec, pCluster2);
-							if(distance<shortestDistance)
-							{
-								shortestDistance=distance;
-								pbestCluster = pCluster2;
-							}
-						}
-						if(shortestDistance<10.f) //TODO: replace placeholder value 10.f
-						{
-							PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::RemoveFromCluster(*this, pCluster, pCaloHit));
-							PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::AddToCluster(*this, pbestCluster, pCaloHit));
-						}
+						PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::RemoveFromCluster(*this, pCluster, pCaloHit));
+						PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::AddToCluster(*this, pbestCluster, pCaloHit));
 					}
-				}
-				else 
-				{
-					if(caloHitClass==1 || caloHitClass==2)
-					{
-						std::cout<<"CerberusAlgorithm::Backtracing else if(caloHitClass==1 || caloHitClass==2)"<<std::endl;
-					}
+					//else
 				}
 			}
-	    }
+		}
 
-	    //PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::GetCurrentList(pNewClusterList, newClusterListName));
-        //PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::EndReclustering(*this, newClusterListName));
+
         if (!pNewClusterList->empty())
     	{
 	    	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::SaveList<Cluster>(*this, m_caloHitListNames[0]));
         	PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::ReplaceCurrentList<Cluster>(*this, m_caloHitListNames[0]));
         }
+
+
+
+	  //   for (const Cluster *const pCluster : *pNewClusterList)
+	  //   {
+			// CaloHitList caloHitList;
+   //  		pCluster->GetOrderedCaloHitList().FillCaloHitList(caloHitList);
+	  //   	for (const CaloHit *const pCaloHit : caloHitList)
+			// {
+			// 	const CartesianVector vec = pCaloHit->GetPositionVector();
+			// 	const int x = (int)((vec.GetX()-minX)/0.3f);
+			// 	const int z = (int)((vec.GetZ()-minZ)/0.3f);
+			// 	if(x>=IMSIZE || z>=IMSIZE || x<0 || z<0) continue; // Skipps hits that are not in the crop area
+
+			// 	const int caloHitClass = tensor.index({0, x, z}).item<int>();
+			// 	std::cout<<"CerberusAlgorithm: Point 1: "<<pCluster->GetParticleId()<<std::endl;
+			// 	if(pCluster->GetParticleId()==E_MINUS) // Is it a shower?
+			// 	{
+			// 		if(caloHitClass==0)
+			// 		{
+			// 			float shortestDistance = std::numeric_limits<float>::max();
+			// 			const Cluster * pbestCluster(nullptr);
+			// 			for (const Cluster *const pCluster2 : *pNewClusterList)
+	  //   				{
+	  //   					if(pCluster2->GetParticleId()==E_MINUS) continue; // Skip showers
+			// 				const float distance = LArClusterHelper::GetClosestDistance(vec, pCluster2);
+			// 				if(distance<shortestDistance)
+			// 				{
+			// 					shortestDistance=distance;
+			// 					pbestCluster = pCluster2;
+			// 				}
+			// 			}
+			// 			if(shortestDistance<10.f) //TODO: replace placeholder value 10.f
+			// 			{
+			// 				PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::RemoveFromCluster(*this, pCluster, pCaloHit));
+			// 				PANDORA_RETURN_RESULT_IF(STATUS_CODE_SUCCESS, !=, PandoraContentApi::AddToCluster(*this, pbestCluster, pCaloHit));
+			// 			}
+			// 		}
+			// 	}
+			// 	else 
+			// 	{
+			// 		if(caloHitClass==1 || caloHitClass==2)
+			// 		{
+			// 			std::cout<<"CerberusAlgorithm::Backtracing else if(caloHitClass==1 || caloHitClass==2)"<<std::endl;
+			// 		}
+			// 	}
+			// }
+	  //   }
+	    
 	    return STATUS_CODE_SUCCESS;
+	}
+
+	// https://github.com/PandoraPFA/LArContent/blob/d4e5aa8b34cae1809f24c1f61d1d2ed0d7994096/larpandoracontent/LArHelpers/LArPfoHelper.cc
+	const Cluster* ExampleHelper::FindClosestTrackCluster(const CaloHit *const pCaloHit, const ClusterList *const pClusterList, const float maxDistance)
+	{
+	    const Cluster *pClosestCluster(nullptr);
+	    float closestDistanceSquared(maxDistance * maxDistance);
+	    const CartesianVector positionVector(pCaloHit->GetPositionVector());
+
+	    for (const Cluster *const pCandidateCluster : *pClusterList)
+	    {
+	    	if(pCandidateCluster->GetParticleId()==E_MINUS) continue; // Skip showers
+	        const CartesianVector candidateCentroid(pCandidateCluster->GetCentroid(pCandidateCluster->GetInnerPseudoLayer()));
+	        const float distanceSquared((positionVector - candidateCentroid).GetMagnitudeSquared());
+
+	        if (distanceSquared < closestDistanceSquared)
+	        {
+	            closestDistanceSquared = distanceSquared;
+	            pClosestCluster = pCandidateCluster;
+	        }
+	    }
+
+	    return pClosestCluster;
 	}
 
 	void CerberusAlgorithm::FillMinimizationArray(std::array<float, SEG> &hitDensity, const PfoList *const pPfoList, const CaloHitList *const pCaloHitList, const CartesianVector v, const float startD1, const float startD2, const bool directionX, const HitType TPC_VIEW)
